@@ -7,10 +7,9 @@ type Props = {
 
 export default function SearchBar({ query }: Props) {
   return (
-    <form className="search" action="/" method="get" key={`${query.q ?? ''}-${query.platform ?? ''}-${query.source ?? ''}-${query.category ?? ''}`}>
+    <form className="search" action="/" method="get" key={`${query.q ?? ''}-${query.source ?? ''}-${query.category ?? ''}`}>
       {query.source && <input type="hidden" name="source" value={query.source} />}
       {query.category && <input type="hidden" name="category" value={query.category} />}
-      {query.platform && <input type="hidden" name="platform" value={query.platform} />}
       <label className="search-field">
         <span className="sr-only">キーワード検索</span>
         <input

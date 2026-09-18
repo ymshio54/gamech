@@ -2,13 +2,11 @@ import FeatureBoard from '@/components/FeatureBoard';
 import FeatureStrip from '@/components/FeatureStrip';
 import ArticleGrid from '@/components/ArticleGrid';
 import CategoryFilter from '@/components/CategoryFilter';
-import PlatformFilter from '@/components/PlatformFilter';
 import SearchBar from '@/components/SearchBar';
 import SourceFilter from '@/components/SourceFilter';
 import { isCategoryId, isReleaseText, isSaleText } from '@/lib/categories';
 import { FEED_SOURCES, fetchArticles, type Article } from '@/lib/feeds';
 import { formatPublishedAt } from '@/lib/format';
-import { isPlatformId, matchesPlatform, PLATFORMS, type PlatformId } from '@/lib/platforms';
 import { buildHref, type QueryState } from '@/lib/query';
 import {
   groupByReleaseBucket,
@@ -32,7 +30,7 @@ import Link from 'next/link';
 export const revalidate = 900;
 
 type PageProps = {
-  searchParams: Promise<{ source?: string; category?: string; q?: string; platform?: string }>;
+  searchParams: Promise<{ source?: string; category?: string; q?: string }>;
 };
 
 type EnrichedArticle = Article & {
@@ -63,32 +61,18 @@ function matchesQuery(article: Article, q?: string): boolean {
 }
 
 export default async function Home({ searchParams }: PageProps) {
-  const { source, category, q: rawQuery, platform } = await searchParams;
+  const { source, category, q: rawQuery } = await searchParams;
   const activeSource = FEED_SOURCES.some((feed) => feed.id === source) ? source : undefined;
   const activeCategory = isCategoryId(category) ? category : undefined;
   const activeQuery = rawQuery?.trim() || undefined;
-  const activePlatform = isPlatformId(platform) ? platform : undefined;
   const query: QueryState = {
     source: activeSource,
     category: activeCategory,
     q: activeQuery,
-    platform: activePlatform,
   };
 
   const { articles, errors } = await fetchArticles(activeSource);
-  const searched = enrichArticles(articles).filter((article) => matchesQuery(article, activeQuery));
-  const platformCounts: Record<'all' | PlatformId, number> = {
-    all: searched.length,
-    ...(Object.fromEntries(
-      PLATFORMS.map((platform) => [
-        platform.id,
-        searched.filter((article) => matchesPlatform(article, platform.id)).length,
-      ]),
-    ) as Record<PlatformId, number>),
-  };
-  const enriched = activePlatform
-    ? searched.filter((article) => matchesPlatform(article, activePlatform))
-    : searched;
+  const enriched = enrichArticles(articles).filter((article) => matchesQuery(article, activeQuery));
 
   const releaseArticles = sortReleaseArticles(
     enriched.filter((article) => article.release && isUpcomingRelease(article.release)),
@@ -118,12 +102,7 @@ export default async function Home({ searchParams }: PageProps) {
   const upcoming = activeCategory === undefined ? upcomingReleases(releaseArticles) : [];
   const sales = activeCategory === undefined ? highlightSales(saleArticles) : [];
 
-  const emptyLabel = [
-    activeQuery && `「${activeQuery}」`,
-    activePlatform && PLATFORMS.find((item) => item.id === activePlatform)?.name,
-  ]
-    .filter(Boolean)
-    .join(' / ');
+  const emptyLabel = activeQuery ? `「${activeQuery}」` : '';
 
   return (
     <main className="page">
@@ -140,7 +119,6 @@ export default async function Home({ searchParams }: PageProps) {
       </header>
 
       <SearchBar query={query} />
-      <PlatformFilter query={query} counts={platformCounts} />
       <CategoryFilter query={query} counts={counts} />
       <SourceFilter query={query} />
 

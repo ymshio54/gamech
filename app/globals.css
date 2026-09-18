@@ -126,11 +126,6 @@ a {
   white-space: nowrap;
 }
 
-.filter--platforms {
-  margin-bottom: 4px;
-  padding-top: 0;
-}
-
 /* 絞り込み行は狭い画面では折り返さず横スクロールさせ、画面端まで伸ばす */
 .tabs,
 .filter {

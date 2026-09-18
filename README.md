@@ -35,13 +35,12 @@ npm run typecheck                # 型チェックのみ
 | `lib/releaseDate.ts` | 発売日の抽出、近い順ソート、「本日発売 / 近日発売」バッジ |
 | `lib/saleStatus.ts` | セールの開催中 / 開催予定の判別 |
 | `lib/format.ts` | 日時の表示整形（`Asia/Tokyo`、24時間以内は「〇分前」も併記） |
-| `lib/query.ts` | 絞り込み条件（`source` / `category` / `q` / `platform`）のURL組み立て |
-| `lib/platforms.ts` | PS5 / Switch / Steam / Xbox の判定 |
+| `lib/query.ts` | 絞り込み条件（`source` / `category` / `q`）のURL組み立て |
+| `lib/platforms.ts` | ストアボタン用の機種名判定 |
 | `lib/storeLinks.ts` | ストア検索リンクとX共有URL |
 | `app/page.tsx` | 一覧ページ（サーバーコンポーネント）。`?category=` と `?source=` で絞り込み |
 | `components/ArticleCard.tsx` | カード1枚。発売・セールのバッジ、X共有、ストアボタン |
 | `components/SearchBar.tsx` | キーワード検索 |
-| `components/PlatformFilter.tsx` | ハード絞り込み（PS5 / Switch / Steam / Xbox） |
 | `components/FeatureStrip.tsx` | 「すべて」タブ先頭の発売間近 / セール情報セクション |
 | `components/FeatureBoard.tsx` | 発売間近・セール情報タブのグループ表示 |
 | `components/RelativeTime.tsx` | 「〇分前」をクライアント側で描画する唯一のクライアントコンポーネント |
@@ -79,12 +78,9 @@ CSSはモバイルファーストで、`640px` を境に切り替えています
 - タブのタップ領域は高さ44pxを確保しています。
 - 390px幅で1画面あたり約4.8件が並びます（縦積みのままだと約1.3件でした）。
 
-## 検索・ハード絞り込み・共有
+## 検索・共有
 
 - 上部の検索バーは `?q=` でタイトルと本文を絞り込みます。Enter または「検索」で確定します。
-- ハードタブは `?platform=` です。判定はタイトルとRSS概要（description）だけを使い、本文は使いません。
-  - 明確な製品名が**1機種だけ**あるときだけ、そのハードタブに入れます（PS5 / PlayStation 5 / Nintendo Switch / Steam / Xbox など）。
-  - 複数機種の併記（`PS5/Switch`）、機種名なし、`スイッチ` や単なる `PC` のようなあいまいな語はすべて「全般・マルチ」です。
 - すべてのカード右下に「Xで共有」（Twitter Web Intent）。
 - 発売間近・セール情報のカードには「Steamで見る」などのストアボタンを出します。本文にストアURLがあればそれを使い、なければ機種の公式ストア検索です。機種が分からないときは「ストアで探す」で検索します。
 
